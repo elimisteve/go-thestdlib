@@ -22,11 +22,12 @@ func addFile(filename string, tw *tar.Writer) error {
         return fmt.Errorf("failed file stat for %s: %s", filename, err)
     }
 
-    hdr := new(tar.Header)
-    hdr.ModTime = stat.ModTime()
-    hdr.Name = filename
-    hdr.Size = stat.Size()
-    hdr.Mode = int64(stat.Mode().Perm())
+    hdr := &tar.Header{
+        ModTime: stat.ModTime(),
+        Name: filename,
+        Size: stat.Size(),
+        Mode: int64(stat.Mode().Perm()),
+    }
 
     if err := tw.WriteHeader(hdr); err != nil {
         return fmt.Errorf("failed writing tar header for %s: %s", filename, err)
