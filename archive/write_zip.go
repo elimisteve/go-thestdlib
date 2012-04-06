@@ -19,7 +19,7 @@ func addFile(filename string, zw *zip.Writer) error {
 
     wr, err := zw.Create(filename)
     if err != nil {
-        return fmt.Errorf("failed create entry for %s in zip file: %s", filename, err)
+        return fmt.Errorf("failed creating entry for %s in zip file: %s", filename, err)
     }
 
     if _, err := io.Copy(wr, file); err != nil {

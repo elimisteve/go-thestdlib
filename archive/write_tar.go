@@ -24,9 +24,9 @@ func addFile(filename string, tw *tar.Writer) error {
 
     hdr := &tar.Header{
         ModTime: stat.ModTime(),
-        Name: filename,
-        Size: stat.Size(),
-        Mode: int64(stat.Mode().Perm()),
+        Name:    filename,
+        Size:    stat.Size(),
+        Mode:    int64(stat.Mode().Perm()),
     }
 
     if err := tw.WriteHeader(hdr); err != nil {
