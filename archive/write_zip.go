@@ -22,6 +22,8 @@ func addFile(filename string, zw *zip.Writer) error {
         return fmt.Errorf("failed creating entry for %s in zip file: %s", filename, err)
     }
 
+    // Not checking how many bytes copied,
+    // since we don't know the file size without doing more work
     if _, err := io.Copy(wr, file); err != nil {
         return fmt.Errorf("failed writing %s to zip: %s", filename, err)
     }

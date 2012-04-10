@@ -33,13 +33,14 @@ func addFile(filename string, tw *tar.Writer) error {
         return fmt.Errorf("failed writing tar header for %s: %s", filename, err)
     }
 
-    written, err := io.Copy(tw, file)
-    if written < stat.Size() {
-        return fmt.Errorf("wrote %d bytes of %s, expected to write %d", written, filename, stat.Size())
-    }
-
+    copied, err := io.Copy(tw, file)
     if err != nil {
         return fmt.Errorf("failed writing %s to tar: %s", filename, err)
+    }
+
+    // Check copied, since we have the file stat with its size
+    if copied < stat.Size() {
+        return fmt.Errorf("wrote %d bytes of %s, expected to write %d", copied, filename, stat.Size())
     }
 
     return nil
