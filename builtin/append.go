@@ -18,10 +18,10 @@ func main() {
     log.Printf("ints3: %v", ints3)
     log.Printf("Slice was at %p, and it moved to %p", ints2, ints3)
 
-    // The idiomatic way to append to a slice,
-    // just assign to the same variable again
     ints4 := []int{1, 2, 3}
     log.Printf("ints4: %v", ints4)
+    // The idiomatic way to append to a slice,
+    // just assign to the same variable again
     ints4 = append(ints4, 4, 5, 6)
     log.Printf("ints4: %v", ints4)
 }

@@ -28,7 +28,8 @@ ChangeTime: {{.ChangeTime}}
 var CompiledHeaderTemplate *template.Template
 
 func init() {
-    CompiledHeaderTemplate = template.Must(template.New("header").Parse(HeaderTemplate))
+    t := template.New("header")
+    CompiledHeaderTemplate = template.Must(t.Parse(HeaderTemplate))
 }
 
 func printHeader(hdr *tar.Header) {
