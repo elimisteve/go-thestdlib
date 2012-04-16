@@ -6,7 +6,7 @@ func main() {
     slice := make([]byte, 10)
     log.Printf("slice: %d", len(slice))
 
-    str := "Hello, 世界"
+    str := "γειά σου κόσμε"
     log.Printf("string: %d", len(str))
 
     m := make(map[string]int)
