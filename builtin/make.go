@@ -3,11 +3,11 @@ package main
 import "log"
 
 func main() {
-    buffered := make(chan int)
-    log.Printf("buffered: %v, type: %T, len: %d, cap: %d", buffered, buffered, len(buffered), cap(buffered))
-
-    unbuffered := make(chan int, 10)
+    unbuffered := make(chan int)
     log.Printf("unbuffered: %v, type: %T, len: %d, cap: %d", unbuffered, unbuffered, len(unbuffered), cap(unbuffered))
+
+    buffered := make(chan int, 10)
+    log.Printf("buffered: %v, type: %T, len: %d, cap: %d", buffered, buffered, len(buffered), cap(buffered))
 
     m := make(map[string]int)
     log.Printf("m: %v, len: %d", m, len(m))

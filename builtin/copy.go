@@ -20,6 +20,6 @@ func main() {
 
     copy(bytes, hello)
 
-    log.Printf("bytes: %v = %v", bytes)
+    log.Printf("bytes: %v", bytes)
     log.Printf("hello: %s", hello)
 }
