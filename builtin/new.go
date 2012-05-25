@@ -7,7 +7,7 @@ type Actor struct {
 }
 
 type Movie struct {
-    Title string
+    Title  string
     Actors []*Actor
 }
 
