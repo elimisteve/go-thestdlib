@@ -6,7 +6,7 @@ import (
 )
 
 func trimOdd(r rune) bool {
-    return r % 2 == 1
+    return r%2 == 1
 }
 
 func main() {
