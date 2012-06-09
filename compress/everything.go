@@ -17,10 +17,11 @@ var (
     compress   = flag.Bool("compress", false, "Perform compression")
     decompress = flag.Bool("decompress", false, "Perform decompression")
     algorithm  = flag.String("algorithm", "", "The algorithm to use (one of bzip2, flate, gzip, lzw, zlib)")
+    input      = flag.String("input", "", "The file to compress or decompress")
 )
 
 func filename() string {
-    return fmt.Sprintf("everything.go.%s", *algorithm)
+    return fmt.Sprintf("%s.%s", *input, *algorithm)
 }
 
 func openOutputFile() *os.File {
@@ -32,15 +33,7 @@ func openOutputFile() *os.File {
 }
 
 func openInputFile() *os.File {
-    file, err := os.Open(filename())
-    if err != nil {
-        log.Fatalf("failed opening input file: %s", err)
-    }
-    return file
-}
-
-func openThisFile() *os.File {
-    file, err := os.Open("everything.go")
+    file, err := os.Open(*input)
     if err != nil {
         log.Fatalf("failed opening input file: %s", err)
     }
@@ -99,7 +92,7 @@ func compression() {
     defer output.Close()
     compressor := getCompressor(output)
     defer compressor.Close()
-    input := openThisFile()
+    input := openInputFile()
     defer input.Close()
     io.Copy(compressor, input)
 }
@@ -116,6 +109,9 @@ func decompression() {
 
 func main() {
     flag.Parse()
+    if *input == "" {
+        log.Fatalf("Please specify an input file with -input")
+    }
     switch {
     case *compress:
         compression()
