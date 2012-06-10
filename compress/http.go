@@ -103,7 +103,8 @@ func httpClient() *http.Client {
 
 func client() {
     buffer, enc := bufferFile(*input)
-    req, err := http.NewRequest("POST", fmt.Sprintf("http://localhost:%d/echo", *port), buffer)
+    url := fmt.Sprintf("http://localhost:%d/echo", *port)
+    req, err := http.NewRequest("POST", url, buffer)
     if err != nil {
         log.Fatalf("Failed creating request: %s", err)
     }
