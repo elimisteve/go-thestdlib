@@ -48,7 +48,8 @@ func requester(work chan Request) {
     for {
         time.Sleep(time.Duration(rand.Int63n(MaxRequesters * Seconds)))
         work <- func() {
-            time.Sleep(time.Duration(rand.Int63n(MaxRequesters*Seconds) + 10))
+            r := rand.Int63n(MaxRequesters*Seconds) + 10
+            time.Sleep(time.Duration(r))
         }
     }
 }
