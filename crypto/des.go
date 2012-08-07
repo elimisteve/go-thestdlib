@@ -1,40 +1,38 @@
 package main
 
 import (
-    "crypto/aes"
     "crypto/cipher"
+    "crypto/des"
     "crypto/rand"
     "flag"
-    "fmt"
     "io/ioutil"
     "log"
 )
 
-const (
-    KeyFile       = "aes.%d.key"
-    EncryptedFile = "aes.go.%d.enc"
-)
-
 var (
-    IV      = []byte("batman and robin") // 16 bytes
-    keySize = flag.Int("keysize", 32, "The keysize in bytes to use: 16, 24, or 32 (default)")
-    do      = flag.String("do", "enc", "Which operation to perform: enc (encryption, default) or dec (decryption)")
+    IV     = []byte("superman") // 8 bytes
+    triple = flag.Bool("triple", false, "Use TripleDES")
+    do     = flag.String("do", "enc", "Which operation to perform: enc (encryption, default) or dec (decryption)")
 )
 
 func MakeKey() []byte {
-    key := make([]byte, *keySize)
+    size := 8
+    if *triple {
+        size *= 3
+    }
+    key := make([]byte, size)
     n, err := rand.Read(key)
     if err != nil {
         log.Fatalf("Failed to read new random key: %s", err)
     }
-    if n < *keySize {
-        log.Fatalf("Failed to read entire key, only read %d out of %d", n, *keySize)
+    if n < size {
+        log.Fatalf("Failed to read entire key, only read %d out of %d", n, size)
     }
     return key
 }
 
 func Key() []byte {
-    file := fmt.Sprintf(KeyFile, *keySize)
+    file := "des.key"
     key, err := ioutil.ReadFile(file)
     if err != nil {
         log.Println("Failed reading keyfile, making a new one...")
@@ -48,9 +46,15 @@ func Key() []byte {
 }
 
 func MakeCipher() cipher.Block {
-    c, err := aes.NewCipher(Key())
+    var c cipher.Block
+    var err error
+    if *triple {
+        c, err = des.NewTripleDESCipher(Key())
+    } else {
+        c, err = des.NewCipher(Key())
+    }
     if err != nil {
-        log.Fatalf("Failed making the AES cipher: %s", err)
+        log.Fatalf("Failed making the DES cipher: %s", err)
     }
     return c
 }
@@ -71,22 +75,15 @@ func Crypt(input, output string) {
 }
 
 func Encrypt() {
-    Crypt("aes.go", fmt.Sprintf(EncryptedFile, *keySize))
+    Crypt("des.go", "des.go.enc")
 }
 
 func Decrypt() {
-    Crypt(fmt.Sprintf(EncryptedFile, *keySize), "aes.go.dec")
+    Crypt("des.go.enc", "des.go.dec")
 }
 
 func main() {
     flag.Parse()
-
-    switch *keySize {
-    case 16, 24, 32:
-        // Keep calm and carry on...
-    default:
-        log.Fatalf("%d is not a valid keysize. Must be one of 16, 24, 32", *keySize)
-    }
 
     switch *do {
     case "enc":
