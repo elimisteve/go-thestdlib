@@ -4,6 +4,7 @@ import (
     "crypto/cipher"
     "crypto/des"
     "crypto/rand"
+    "encoding/pem"
     "flag"
     "io/ioutil"
     "log"
@@ -31,16 +32,33 @@ func MakeKey() []byte {
     return key
 }
 
+func SaveKey(filename string, key []byte) {
+    block := &pem.Block{
+        Type:  "DES KEY",
+        Bytes: key,
+    }
+    err := ioutil.WriteFile(filename, pem.EncodeToMemory(block), 0644)
+    if err != nil {
+        log.Fatalf("Failed saving key to %s: %s", filename, err)
+    }
+}
+
+func ReadKey(filename string) ([]byte, error) {
+    key, err := ioutil.ReadFile(filename)
+    if err != nil {
+        return key, err
+    }
+    block, _ := pem.Decode(key)
+    return block.Bytes, nil
+}
+
 func Key() []byte {
     file := "des.key"
-    key, err := ioutil.ReadFile(file)
+    key, err := ReadKey(file)
     if err != nil {
         log.Println("Failed reading keyfile, making a new one...")
         key = MakeKey()
-        err = ioutil.WriteFile(file, key, 0644)
-        if err != nil {
-            log.Fatalf("Failed saving key to %s: %s", file, err)
-        }
+        SaveKey(file, key)
     }
     return key
 }
