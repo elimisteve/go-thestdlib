@@ -19,7 +19,7 @@ const (
 
 var (
     message = flag.String("message", "Nuke the site from orbit, it's the only way to be sure.", "The message to sign")
-    do      = flag.String("do", "sign", "The operation to do, sign or verify")
+    do      = flag.String("do", "sign", "The operation to do, verify or sign (default)")
     rc      = flag.String("r", "", "The r to use when verifying")
     sc      = flag.String("s", "", "The s to use when verifying")
 )
@@ -28,7 +28,7 @@ func HashMessage() []byte {
     h := sha1.New()
     _, err := io.WriteString(h, *message)
     if err != nil {
-        log.Fatalf("Failed to hash message: %s", err)
+        log.Fatalf("failed to hash message: %s", err)
     }
     return h.Sum(nil)
 }
@@ -45,17 +45,15 @@ func SaveKey(key *dsa.PrivateKey) {
     }
     bytes, err := asn1.Marshal(val)
     if err != nil {
-        log.Fatalf("Failed marshalling key to asn1: %s", err)
+        log.Fatalf("failed marshalling key to asn1: %s", err)
     }
     block := &pem.Block{
         Type:  "DSA PRIVATE KEY",
         Bytes: bytes,
     }
-    // Could also write the pub/priv keys to separate files
-    // This writes the private key, which includes the public part
     err = ioutil.WriteFile(KeyFile, pem.EncodeToMemory(block), 0644)
     if err != nil {
-        log.Fatalf("Failed saving key to file %s: %s", KeyFile, err)
+        log.Fatalf("failed saving key to file %s: %s", KeyFile, err)
     }
 }
 
@@ -70,9 +68,17 @@ func ReadKey() (*dsa.PrivateKey, error) {
     if err != nil {
         return nil, err
     }
-    key := new(dsa.PrivateKey)
-    key.P, key.Q, key.G = val.P, val.Q, val.G
-    key.Y, key.X = val.Y, val.X
+    key := &dsa.PrivateKey{
+        PublicKey: dsa.PublicKey{
+            Parameters: dsa.Parameters{
+                P:  val.P,
+                Q:  val.Q,
+                G:  val.G,
+            },
+            Y:  val.Y,
+        },
+        X:  val.X,
+    }
     return key, nil
 }
 
@@ -80,11 +86,11 @@ func MakeKey() *dsa.PrivateKey {
     key := new(dsa.PrivateKey)
     err := dsa.GenerateParameters(&key.Parameters, rand.Reader, dsa.L2048N256)
     if err != nil {
-        log.Fatalf("Failed to parameters: %s", err)
+        log.Fatalf("failed to parameters: %s", err)
     }
     err = dsa.GenerateKey(key, rand.Reader)
     if err != nil {
-        log.Fatalf("Failed to generate key: %s", err)
+        log.Fatalf("failed to generate key: %s", err)
     }
     return key
 }
@@ -92,7 +98,7 @@ func MakeKey() *dsa.PrivateKey {
 func Key() *dsa.PrivateKey {
     key, err := ReadKey()
     if err != nil {
-        log.Printf("Failed reading keyfile, making a new one: %s", err)
+        log.Printf("failed reading keyfile, making a new one: %s", err)
         key = MakeKey()
         SaveKey(key)
     }
@@ -104,26 +110,26 @@ func Sign() {
     hash := HashMessage()
     r, s, err := dsa.Sign(rand.Reader, key, hash)
     if err != nil {
-        log.Fatalf("Failed to sign message: %s", err)
+        log.Fatalf("failed to sign message: %s", err)
     }
     log.Printf("r: %v", r)
     log.Printf("s: %v", s)
 }
 
 func Verify() {
-    r := new(big.Int)
+    r := big.NewInt(0)
     r.SetString(*rc, 10)
 
-    s := new(big.Int)
+    s := big.NewInt(0)
     s.SetString(*sc, 10)
 
     hash := HashMessage()
     key := Key()
     if dsa.Verify(&key.PublicKey, hash, r, s) {
-        log.Println("Yay! Message is valid!")
+        log.Println("message is valid!")
     } else {
-        log.Println("OH NOES! Message is invalid :(")
-        log.Println("Did you use the -r and -s flags to pass the r and s values?")
+        log.Println("message is invalid :(")
+        log.Println("did you use the -r and -s flags to pass the r and s values?")
     }
 }
 
