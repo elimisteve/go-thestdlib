@@ -88,7 +88,6 @@ func main() {
     var guess []byte
     pw := []byte(*password)
     start := time.Now()
-    end := time.Now()
     switch *compare {
     case "broken":
         guess = BrokenCrack(pw)
@@ -97,6 +96,7 @@ func main() {
     default:
         log.Fatalf("%s is not a valid compare function. Must be one of broken or constant")
     }
+    end := time.Now()
     dur := end.Sub(start)
     log.Printf("password guess after %s is: %s", dur, guess)
 }
