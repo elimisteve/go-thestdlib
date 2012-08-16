@@ -22,7 +22,7 @@ const (
 )
 
 var (
-    do      = flag.String("do", "serve", "The operation to perform. Must be one of {serve,cert,key}")
+    do      = flag.String("do", "serve", "The operation to perform, key, cert, or serve (default)")
     keySize = flag.Int("keysize", 2048, "The RSA keysize to use")
 )
 
@@ -138,7 +138,7 @@ func Serve() {
 
     config := Config()
     listener := tls.NewListener(conn, config)
-    log.Printf("listening on %s, connect with openssl s_client -tls1 -connect %s", addr, addr)
+    log.Printf("listening on %s, connect with 'openssl s_client -tls1 -connect %s'", addr, addr)
     for {
         conn, err := listener.Accept()
         if err != nil {
