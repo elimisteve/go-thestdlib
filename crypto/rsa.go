@@ -24,9 +24,9 @@ const (
 
 var (
     keySize       = flag.Int("keysize", 2048, "The size of the key in bits")
-    do            = flag.String("do", "encrypt", "The operation to perform. Must be one of {encrypt,decrypt}")
+    do            = flag.String("do", "encrypt", "The operation to perform, decrypt or encrypt (default)")
     message       = flag.String("message", "The revolution has begun!", "The message to encrypt")
-    hashAlgorithm = flag.String("algorithm", "sha256", "The hash algorithm to use. Must be one of md5, sha1, sha256, sha512")
+    hashAlgorithm = flag.String("algorithm", "sha256", "The hash algorithm to use. Must be one of md5, sha1, sha256 (default), sha512")
 )
 
 func MakeKey() *rsa.PrivateKey {
