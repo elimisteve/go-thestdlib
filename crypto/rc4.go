@@ -15,7 +15,7 @@ const (
 )
 
 var (
-    do      = flag.String("do", "encrypt", "The operation to perform, encrypt (default) or decrypt")
+    do      = flag.String("do", "encrypt", "The operation to perform, decrypt or encrypt (default)")
     message = flag.String("message", "Wolverines attack at dawn. Red Dawn.", "The message to encrypt")
     keySize = flag.Int("keysize", 256, "Key size in bytes")
 )
@@ -24,10 +24,10 @@ func MakeKey() []byte {
     key := make([]byte, *keySize)
     n, err := rand.Read(key)
     if err != nil {
-        log.Fatalf("Failed to read new random key: %s", err)
+        log.Fatalf("failed to read new random key: %s", err)
     }
     if n < *keySize {
-        log.Fatalf("Failed to read entire key, only read %d out of %d", n, *keySize)
+        log.Fatalf("failed to read entire key, only read %d out of %d", n, *keySize)
     }
     return key
 }
@@ -39,7 +39,7 @@ func SaveKey(filename string, key []byte) {
     }
     err := ioutil.WriteFile(filename, pem.EncodeToMemory(block), 0644)
     if err != nil {
-        log.Fatalf("Failed saving key to %s: %s", filename, err)
+        log.Fatalf("failed saving key to %s: %s", filename, err)
     }
 }
 
@@ -55,7 +55,7 @@ func ReadKey(filename string) ([]byte, error) {
 func Key() []byte {
     key, err := ReadKey(KeyFile)
     if err != nil {
-        log.Println("Failed reading key, making a new one...")
+        log.Println("failed reading key, making a new one...")
         key = MakeKey()
         SaveKey(KeyFile, key)
     }
@@ -66,7 +66,7 @@ func Cipher() *rc4.Cipher {
     key := Key()
     cipher, err := rc4.NewCipher(key)
     if err != nil {
-        log.Fatalf("Failed to make RC4 cipher: %s", err)
+        log.Fatalf("failed to make RC4 cipher: %s", err)
     }
     return cipher
 }
@@ -77,7 +77,7 @@ func Encrypt() {
     cipher.XORKeyStream(text, text)
     err := ioutil.WriteFile(EncryptedFile, text, 0644)
     if err != nil {
-        log.Fatalf("Failed to write encrypted file: %s", err)
+        log.Fatalf("failed to write encrypted file: %s", err)
     }
 }
 
@@ -85,7 +85,7 @@ func Decrypt() {
     cipher := Cipher()
     bytes, err := ioutil.ReadFile(EncryptedFile)
     if err != nil {
-        log.Fatalf("Failed to read encrypted file. Did you encrypt first? %s", err)
+        log.Fatalf("failed to read encrypted file. Did you encrypt first? %s", err)
     }
     cipher.XORKeyStream(bytes, bytes)
     log.Printf("decrypted message: %s", bytes)
