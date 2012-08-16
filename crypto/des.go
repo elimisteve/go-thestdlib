@@ -10,10 +10,16 @@ import (
     "log"
 )
 
+const (
+    KeyFile       = "des.key"
+    EncryptedFile = "des.enc"
+)
+
 var (
-    IV     = []byte("superman") // 8 bytes
-    triple = flag.Bool("triple", false, "Use TripleDES")
-    do     = flag.String("do", "enc", "Which operation to perform: enc (encryption, default) or dec (decryption)")
+    IV      = []byte("superman") // 8 bytes
+    triple  = flag.Bool("3", false, "Use 3DES")
+    message = flag.String("message", "Batman is Bruce Wayne", "The message to encrypt")
+    do      = flag.String("do", "encrypt", "The operation to perform: decrypt or encrypt (default) ")
 )
 
 func MakeKey() []byte {
@@ -24,10 +30,10 @@ func MakeKey() []byte {
     key := make([]byte, size)
     n, err := rand.Read(key)
     if err != nil {
-        log.Fatalf("Failed to read new random key: %s", err)
+        log.Fatalf("failed to read new random key: %s", err)
     }
     if n < size {
-        log.Fatalf("Failed to read entire key, only read %d out of %d", n, size)
+        log.Fatalf("failed to read entire key, only read %d out of %d", n, size)
     }
     return key
 }
@@ -39,7 +45,7 @@ func SaveKey(filename string, key []byte) {
     }
     err := ioutil.WriteFile(filename, pem.EncodeToMemory(block), 0644)
     if err != nil {
-        log.Fatalf("Failed saving key to %s: %s", filename, err)
+        log.Fatalf("failed saving key to %s: %s", filename, err)
     }
 }
 
@@ -53,12 +59,11 @@ func ReadKey(filename string) ([]byte, error) {
 }
 
 func Key() []byte {
-    file := "des.key"
-    key, err := ReadKey(file)
+    key, err := ReadKey(KeyFile)
     if err != nil {
-        log.Println("Failed reading keyfile, making a new one...")
+        log.Println("failed reading keyfile, making a new one...")
         key = MakeKey()
-        SaveKey(file, key)
+        SaveKey(KeyFile, key)
     }
     return key
 }
@@ -72,43 +77,43 @@ func MakeCipher() cipher.Block {
         c, err = des.NewCipher(Key())
     }
     if err != nil {
-        log.Fatalf("Failed making the DES cipher: %s", err)
+        log.Fatalf("failed making the DES cipher: %s", err)
     }
     return c
 }
 
-func Crypt(input, output string) {
+func Crypt(bytes []byte) []byte {
     blockCipher := MakeCipher()
     stream := cipher.NewCTR(blockCipher, IV)
-    bytes, err := ioutil.ReadFile(input)
-    if err != nil {
-        log.Fatalf("Failed reading input file: %s", err)
-    }
-    // Look Ma! No extra memory!
     stream.XORKeyStream(bytes, bytes)
-    err = ioutil.WriteFile(output, bytes, 0644)
-    if err != nil {
-        log.Fatalf("Failed writing output file: %s", err)
-    }
+    return bytes
 }
 
 func Encrypt() {
-    Crypt("des.go", "des.go.enc")
+    encrypted := Crypt([]byte(*message))
+    err := ioutil.WriteFile(EncryptedFile, encrypted, 0644)
+    if err != nil {
+        log.Fatalf("failed writing encrypted file: %s", err)
+    }
 }
 
 func Decrypt() {
-    Crypt("des.go.enc", "des.go.dec")
+    bytes, err := ioutil.ReadFile(EncryptedFile)
+    if err != nil {
+        log.Fatalf("failed reading encrypted file: %s", err)
+    }
+    plaintext := Crypt(bytes)
+    log.Printf("decrypted message: %s", plaintext)
 }
 
 func main() {
     flag.Parse()
-
     switch *do {
-    case "enc":
+    case "encrypt":
         Encrypt()
-    case "dec":
+    case "decrypt":
         Decrypt()
     default:
-        log.Fatalf("%s is not a valid operation. Must be one of enc or dec", *do)
+        log.Fatalf("%s is not a valid operation. Must be one of encrypt or decrypt", *do)
     }
 }
