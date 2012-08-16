@@ -20,7 +20,7 @@ func main() {
     flag.Parse()
     block, err := aes.NewCipher(key)
     if err != nil {
-        log.Fatalf("Failed making AES block cipher: %s", err)
+        log.Fatalf("failed making AES block cipher: %s", err)
     }
     bytes := []byte(*message)
     stream := cipher.NewCTR(block, iv)
