@@ -23,7 +23,7 @@ type TestRun struct {
 type Times []TestRun
 
 func (t Times) Len() int           { return len(t) }
-func (t Times) Less(i, j int) bool { return t[i].Time > t[j].Time }
+func (t Times) Less(i, j int) bool { return t[i].Time < t[j].Time }
 func (t Times) Swap(i, j int)      { t[i], t[j] = t[j], t[i] }
 
 func (t *Times) Push(v interface{}) {
